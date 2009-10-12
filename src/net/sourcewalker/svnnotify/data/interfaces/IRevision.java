@@ -12,10 +12,5 @@ public interface IRevision {
 	String getAuthor();
 	Date getTimestamp();
 	String getMessage();
-	
-	void setRevision(int revision);
-	void setAuthor(String author);
-	void setTimestamp(Date timestamp);
-	void setMessage(String message);
 
 }

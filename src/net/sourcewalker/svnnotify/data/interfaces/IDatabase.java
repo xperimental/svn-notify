@@ -9,7 +9,7 @@ import java.util.List;
 public interface IDatabase {
 
 	List<IRepository> getRepositories();
-	IRepository addRepository();
-	void removeRepository(IRepository repo);
+	void addRepository(IRepository repository);
+	void removeRepository(IRepository repository);
 	
 }
