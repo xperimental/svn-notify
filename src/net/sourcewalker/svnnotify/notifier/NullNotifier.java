@@ -1,4 +1,4 @@
-package net.sourcewalker.svnnotify.data;
+package net.sourcewalker.svnnotify.notifier;
 
 import java.util.List;
 

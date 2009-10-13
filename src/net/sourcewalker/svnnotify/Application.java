@@ -4,7 +4,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 
-import net.sourcewalker.svnnotify.data.NullNotifier;
 import net.sourcewalker.svnnotify.data.ShellProvider;
 import net.sourcewalker.svnnotify.data.interfaces.IDatabase;
 import net.sourcewalker.svnnotify.data.interfaces.INotifier;
@@ -13,6 +12,7 @@ import net.sourcewalker.svnnotify.data.interfaces.IProvider;
 import net.sourcewalker.svnnotify.data.interfaces.IRepository;
 import net.sourcewalker.svnnotify.data.interfaces.IRevision;
 import net.sourcewalker.svnnotify.data.xmldb.XmlDatabase;
+import net.sourcewalker.svnnotify.notifier.NullNotifier;
 
 /**
  * @author Xperimental
