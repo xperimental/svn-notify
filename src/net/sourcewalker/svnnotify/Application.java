@@ -100,8 +100,33 @@ public class Application implements Runnable {
 			else
 				showHelpScreen();
 			break;
+		case DELETE_REPO:
+			if (repoName != null)
+				deleteRepo();
+			else
+				showHelpScreen();
+			break;
 		default:
 			System.out.println("Error: Application mode not defined!");
+		}
+	}
+
+	private void deleteRepo() {
+		List<IRepository> repositories = database.getRepositories();
+		IRepository delete = null;
+		for (IRepository repo : repositories) {
+			if (repo.getName().equals(repoName)) {
+				delete = repo;
+				break;
+			}
+		}
+		if (delete != null) {
+			database.removeRepository(delete);
+			System.out.println("Deleted repository: " + delete.getName() + " ("
+					+ delete.getURL().toString() + ")");
+			database.save();
+		} else {
+			System.out.println("Error: Repository not found!");
 		}
 	}
 
