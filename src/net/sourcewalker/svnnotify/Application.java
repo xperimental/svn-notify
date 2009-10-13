@@ -1,5 +1,7 @@
 package net.sourcewalker.svnnotify;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
 
 import net.sourcewalker.svnnotify.data.NullNotifier;
@@ -92,15 +94,36 @@ public class Application implements Runnable {
 		case LIST_REPO:
 			listRepos();
 			break;
+		case CREATE_REPO:
+			if (repoName != null && repoUrl != null)
+				createRepo();
+			else
+				showHelpScreen();
+			break;
 		default:
 			System.out.println("Error: Application mode not defined!");
 		}
 	}
 
+	private void createRepo() {
+		URI url;
+		try {
+			url = new URI(repoUrl);
+		} catch (URISyntaxException e) {
+			System.out.println("Error: Invalid URL!");
+			return;
+		}
+		IRepository repo = objectFactory.createRepository(repoName, url);
+		database.addRepository(repo);
+		database.save();
+		
+		System.out.println("Created repository: " + repoName + " (" + url.toString() + ")");
+	}
+
 	private void listRepos() {
 		System.out.println("Configured repositories:");
 		List<IRepository> repos = database.getRepositories();
-		for (IRepository repo: repos) {
+		for (IRepository repo : repos) {
 			System.out.println(repo.getName());
 			System.out.println("  URL: " + repo.getURL().toString());
 			System.out.println();
