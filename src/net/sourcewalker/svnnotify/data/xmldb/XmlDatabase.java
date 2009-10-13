@@ -1,13 +1,21 @@
 package net.sourcewalker.svnnotify.data.xmldb;
 
-import java.io.PrintStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.Charset;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
 
 import net.sourcewalker.svnnotify.data.interfaces.IDatabase;
 import net.sourcewalker.svnnotify.data.interfaces.IObjectFactory;
@@ -47,7 +55,7 @@ public class XmlDatabase implements IDatabase, IObjectFactory {
 		repositories.remove(repository);
 	}
 
-	private void load() {
+	protected void load() {
 		// Create some demo data
 	}
 
@@ -62,43 +70,68 @@ public class XmlDatabase implements IDatabase, IObjectFactory {
 		return new XmlRevision(revision, author, timestamp, message);
 	}
 
-	/**
-	 * @param out
-	 */
-	public void dumpDB(PrintStream output) {
-		output.println("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>");
-		if (repositories.size() == 0)
-			output.println("<database />");
-		else {
-			output.println("<database>");
-			for (IRepository repo : repositories) {
-				List<IRevision> revs = repo.getAllRevisions();
+	protected void dumpDB(Writer output) {
+		XMLOutputFactory outFactory = XMLOutputFactory.newInstance();
+		try {
+			XMLStreamWriter xmlWriter = outFactory
+					.createXMLStreamWriter(output);
+			xmlWriter.writeStartDocument("UTF-8", "1.0");
+			if (repositories.size() == 0)
+				xmlWriter.writeEmptyElement("database");
+			else {
+				xmlWriter.writeStartElement("database");
+				for (IRepository repo : repositories) {
+					List<IRevision> revs = repo.getAllRevisions();
 
-				output.println("  <repository>");
-				output.println("    <name>" + repo.getName() + "</name>");
-				output.println("    <url>" + repo.getURL().toString()
-						+ "</url>");
-				if (revs.size() == 0)
-					output.println("    <revisions />");
-				else {
-					output.println("    <revisions>");
-					for (IRevision rev : revs) {
-						output.println("      <revision number=\""
-								+ rev.getRevision() + "\">");
-						output.println("        <date>"
-								+ dateFormat.format(rev.getTimestamp())
-								+ "</date>");
-						output.println("        <author>" + rev.getAuthor()
-								+ "</author>");
-						output.println("        <message>" + rev.getMessage()
-								+ "</message>");
-						output.println("      </revision>");
+					xmlWriter.writeStartElement("repository");
+					xmlWriter.writeStartElement("name");
+					xmlWriter.writeCharacters(repo.getName());
+					xmlWriter.writeEndElement();
+					xmlWriter.writeStartElement("url");
+					xmlWriter.writeCharacters(repo.getURL().toString());
+					xmlWriter.writeEndElement();
+					if (revs.size() == 0)
+						xmlWriter.writeEmptyElement("revisions");
+					else {
+						xmlWriter.writeStartElement("revisions");
+						for (IRevision rev : revs) {
+							xmlWriter.writeStartElement("revision");
+							xmlWriter.writeAttribute("number", Integer
+									.toString(rev.getRevision()));
+							xmlWriter.writeStartElement("date");
+							xmlWriter.writeCharacters(dateFormat.format(rev
+									.getTimestamp()));
+							xmlWriter.writeEndElement();
+							xmlWriter.writeStartElement("author");
+							xmlWriter.writeCharacters(rev.getAuthor());
+							xmlWriter.writeEndElement();
+							xmlWriter.writeStartElement("message");
+							xmlWriter.writeCharacters(rev.getMessage());
+							xmlWriter.writeEndElement();
+							xmlWriter.writeEndElement();
+						}
+						xmlWriter.writeEndElement();
 					}
-					output.println("    </revisions>");
+					xmlWriter.writeEndElement();
 				}
-				output.println("  </repository>");
+				xmlWriter.writeEndElement();
 			}
-			output.println("</database>");
+			xmlWriter.writeEndDocument();
+		} catch (XMLStreamException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	public void save() {
+		try {
+			FileOutputStream stream = new FileOutputStream(
+					"svn-notifier.db.xml");
+			OutputStreamWriter writer = new OutputStreamWriter(stream, Charset
+					.forName("UTF-8"));
+			dumpDB(writer);
+			writer.close();
+		} catch (IOException e) {
 		}
 	}
 
