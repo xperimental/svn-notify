@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project basedir="." default="build" name="svn-notify">
+	<property environment="env" />
+	<property name="debuglevel" value="source,lines,vars" />
+	<property name="target" value="1.6" />
+	<property name="source" value="1.6" />
+	<path id="svn-notify.classpath">
+		<pathelement location="bin" />
+	</path>
+	<target name="init">
+		<mkdir dir="bin" />
+		<mkdir dir="dist" />
+		<copy includeemptydirs="false" todir="bin">
+			<fileset dir="src">
+				<exclude name="**/*.launch" />
+				<exclude name="**/*.java" />
+			</fileset>
+		</copy>
+	</target>
+	<target name="clean">
+		<delete dir="bin" />
+		<delete dir="dist" />
+		<delete file="MANIFEST.MF" />
+	</target>
+	<target depends="init" name="build">
+		<echo message="${ant.project.name}: ${ant.file}" />
+		<javac debug="true" debuglevel="${debuglevel}" destdir="bin" source="${source}" target="${target}">
+			<src path="src" />
+			<classpath refid="svn-notify.classpath" />
+		</javac>
+	</target>
+	<target name="run">
+		<java classname="net.sourcewalker.svnnotify.Application" failonerror="true" fork="yes">
+			<classpath refid="svn-notify.classpath" />
+		</java>
+	</target>
+	<target depends="build" name="package">
+		<manifest file="MANIFEST.MF">
+			<attribute name="Main-Class" value="net.sourcewalker.svnnotify.Application" />
+		</manifest>
+		<jar destfile="dist/svn-notify.jar" basedir="bin" manifest="MANIFEST.MF" />
+	</target>
+</project>
