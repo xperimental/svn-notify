@@ -2,6 +2,7 @@ package net.sourcewalker.svnnotify;
 
 import java.util.List;
 
+import net.sourcewalker.svnnotify.data.NullNotifier;
 import net.sourcewalker.svnnotify.data.ShellProvider;
 import net.sourcewalker.svnnotify.data.interfaces.IDatabase;
 import net.sourcewalker.svnnotify.data.interfaces.INotifier;
@@ -37,6 +38,7 @@ public class Application implements Runnable {
 		database = new XmlDatabase("database.xml");
 		objectFactory = (IObjectFactory) database;
 		provider = new ShellProvider();
+		notifier = new NullNotifier();
 	}
 
 	@Override
@@ -62,6 +64,8 @@ public class Application implements Runnable {
 				System.out.println();
 			}
 		}
+		System.out.println("Dump database:");
+		((XmlDatabase) database).dumpDB(System.out);
 	}
 
 }
