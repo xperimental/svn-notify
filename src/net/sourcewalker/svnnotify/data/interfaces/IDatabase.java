@@ -11,5 +11,6 @@ public interface IDatabase {
 	List<IRepository> getRepositories();
 	void addRepository(IRepository repository);
 	void removeRepository(IRepository repository);
+	void save();
 	
 }

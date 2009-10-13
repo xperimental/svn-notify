@@ -43,8 +43,6 @@ public class Application implements Runnable {
 
 	@Override
 	public void run() {
-		System.out.println("Dump database:");
-		((XmlDatabase) database).dumpDB(System.out);
 		System.out.println("Check for new revisions:");
 		for (IRepository repo : database.getRepositories()) {
 			System.out.println("Checking repository " + repo.getName());
@@ -64,8 +62,7 @@ public class Application implements Runnable {
 				System.out.println();
 			}
 		}
-		System.out.println("Dump database:");
-		((XmlDatabase) database).dumpDB(System.out);
+		database.save();
 	}
 
 }
