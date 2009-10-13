@@ -85,9 +85,31 @@ public class Application implements Runnable {
 		switch (mode) {
 		case NORMAL:
 			normalRun();
+			break;
+		case HELP:
+			showHelpScreen();
+			break;
 		default:
 			System.out.println("Error: Application mode not defined!");
 		}
+	}
+
+	private void showHelpScreen() {
+		System.out.println("usage:");
+		System.out.println("\tsvn-notify");
+		System.out.println("\tsvn-notify --help");
+		System.out.println("\tsvn-notify --list");
+		System.out.println("\tsvn-notify --create --name <name> --url <url>");
+		System.out.println("\tsvn-notify --delete --name <name>\n");
+		System.out.println("Running svn-notify without parameters will check the" +
+				" repositories for new revisions and alert the user," +
+				" if there are any.\n");
+		System.out.println("Running svn-notify with the \"--help\" parameter" +
+				" will show this message.\n");
+		System.out.println("The parameter \"--list\" causes svn-notify to print" +
+				" out all the repositories it is configured to monitor.\n");
+		System.out.println("The parameters \"--create\" and \"--delete\" are" +
+				" used to create and delete repositories for monitoring.");
 	}
 
 	private void normalRun() {
