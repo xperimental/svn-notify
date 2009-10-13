@@ -89,8 +89,21 @@ public class Application implements Runnable {
 		case HELP:
 			showHelpScreen();
 			break;
+		case LIST_REPO:
+			listRepos();
+			break;
 		default:
 			System.out.println("Error: Application mode not defined!");
+		}
+	}
+
+	private void listRepos() {
+		System.out.println("Configured repositories:");
+		List<IRepository> repos = database.getRepositories();
+		for (IRepository repo: repos) {
+			System.out.println(repo.getName());
+			System.out.println("  URL: " + repo.getURL().toString());
+			System.out.println();
 		}
 	}
 
