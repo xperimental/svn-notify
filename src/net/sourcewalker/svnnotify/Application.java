@@ -34,15 +34,63 @@ public class Application implements Runnable {
 	IProvider provider;
 	INotifier notifier;
 
+	ApplicationMode mode = ApplicationMode.NORMAL;
+	String repoName = null;
+	String repoUrl = null;
+
 	public Application(String[] args) {
 		database = new XmlDatabase("database.xml");
 		objectFactory = (IObjectFactory) database;
 		provider = new ShellProvider();
 		notifier = new NullNotifier();
+
+		parseArgs(args);
+	}
+
+	/**
+	 * @param args
+	 */
+	private void parseArgs(String[] args) {
+		for (int i = 0; i < args.length; i++) {
+			String arg = args[i];
+			if (arg.equalsIgnoreCase("--help")) {
+				mode = ApplicationMode.HELP;
+				return;
+			}
+			if (arg.equalsIgnoreCase("--create")) {
+				mode = ApplicationMode.CREATE_REPO;
+				continue;
+			}
+			if (arg.equalsIgnoreCase("--delete")) {
+				mode = ApplicationMode.DELETE_REPO;
+				continue;
+			}
+			if (arg.equalsIgnoreCase("--list")) {
+				mode = ApplicationMode.LIST_REPO;
+				return;
+			}
+			if (arg.equalsIgnoreCase("--name")) {
+				repoName = args[i + 1];
+				continue;
+			}
+			if (arg.equalsIgnoreCase("--url")) {
+				repoUrl = args[i + 1];
+				continue;
+			}
+		}
 	}
 
 	@Override
 	public void run() {
+		switch (mode) {
+		case NORMAL:
+			normalRun();
+		default:
+			System.out.println("Error: Application mode not defined!");
+		}
+	}
+
+	private void normalRun() {
 		System.out.println("Check for new revisions:");
 		for (IRepository repo : database.getRepositories()) {
 			System.out.println("Checking repository " + repo.getName());
