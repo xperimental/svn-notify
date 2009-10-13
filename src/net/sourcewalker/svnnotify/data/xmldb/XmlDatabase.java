@@ -3,6 +3,8 @@ package net.sourcewalker.svnnotify.data.xmldb;
 import java.io.PrintStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -17,6 +19,8 @@ import net.sourcewalker.svnnotify.data.interfaces.IRevision;
  * 
  */
 public class XmlDatabase implements IDatabase, IObjectFactory {
+
+	static DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 
 	String fileName;
 	List<IRepository> repositories;
@@ -65,21 +69,31 @@ public class XmlDatabase implements IDatabase, IObjectFactory {
 		output.println("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>");
 		if (repositories.size() == 0)
 			output.println("<database />");
-		else
-		{
+		else {
 			output.println("<database>");
-			for (IRepository repo: repositories)
-			{
+			for (IRepository repo : repositories) {
 				List<IRevision> revs = repo.getAllRevisions();
-				
+
 				output.println("  <repository>");
 				output.println("    <name>" + repo.getName() + "</name>");
-				output.println("    <url>" + repo.getURL().toString() + "</url>");
+				output.println("    <url>" + repo.getURL().toString()
+						+ "</url>");
 				if (revs.size() == 0)
 					output.println("    <revisions />");
-				else
-				{
+				else {
 					output.println("    <revisions>");
+					for (IRevision rev : revs) {
+						output.println("      <revision number=\""
+								+ rev.getRevision() + "\">");
+						output.println("        <date>"
+								+ dateFormat.format(rev.getTimestamp())
+								+ "</date>");
+						output.println("        <author>" + rev.getAuthor()
+								+ "</author>");
+						output.println("        <message>" + rev.getMessage()
+								+ "</message>");
+						output.println("      </revision>");
+					}
 					output.println("    </revisions>");
 				}
 				output.println("  </repository>");
