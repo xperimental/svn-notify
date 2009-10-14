@@ -41,7 +41,7 @@ public class XmlDatabase implements IDatabase, IObjectFactory {
 
 	static final DateFormat DATE_FORMAT = new SimpleDateFormat(
 			"yyyy-MM-dd'T'HH:mm:ss");
-	static final String DATABASE_FILE_NAME = "svn-notifier.db.xml";
+	static final String DATABASE_FILE_NAME = "svn-notify.db.xml";
 
 	String fileName;
 	List<IRepository> repositories;
