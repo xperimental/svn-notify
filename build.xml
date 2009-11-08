@@ -10,6 +10,7 @@
 	<target name="init">
 		<mkdir dir="bin" />
 		<mkdir dir="dist" />
+		<mkdir dir="build" />
 		<copy includeemptydirs="false" todir="bin">
 			<fileset dir="src">
 				<exclude name="**/*.launch" />
@@ -20,6 +21,7 @@
 	<target name="clean">
 		<delete dir="bin" />
 		<delete dir="dist" />
+		<delete dir="build" />
 		<delete file="MANIFEST.MF" />
 	</target>
 	<target depends="init" name="build">
@@ -29,12 +31,22 @@
 			<classpath refid="svn-notify.classpath" />
 		</javac>
 	</target>
-	<target name="run">
+	<target depends="build" name="run">
 		<java classname="net.sourcewalker.svnnotify.Application" failonerror="true" fork="yes">
 			<classpath refid="svn-notify.classpath" />
 		</java>
 	</target>
-	<target depends="build" name="package">
+	<target depends="build" name="check">
+		<taskdef resource="checkstyletask.properties"
+			classpath="${env.CHECKSTYLE_HOME}/checkstyle-all-5.0.jar"/>
+		<checkstyle
+			config="${env.CHECKSTYLE_HOME}/sun_checks.xml"
+			failOnViolation="false">
+		  <fileset dir="src" includes="**/*.java"/>
+		  <formatter type="xml" toFile="build/checkstyle-result.xml"/>
+		</checkstyle>
+	</target>
+	<target depends="build,check" name="package">
 		<manifest file="MANIFEST.MF">
 			<attribute name="Main-Class" value="net.sourcewalker.svnnotify.Application" />
 		</manifest>
