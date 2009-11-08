@@ -5,11 +5,12 @@ import java.util.Date;
 
 /**
  * @author Xperimental
- *
  */
 public interface IObjectFactory {
-	
-	IRepository createRepository(String name, URI url);
-	IRevision createRevision(int revision, String author, Date timestamp, String message);
+
+    IRepository createRepository(String name, URI url);
+
+    IRevision createRevision(int revision, String author, Date timestamp,
+            String message);
 
 }

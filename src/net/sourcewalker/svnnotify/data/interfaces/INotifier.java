@@ -4,10 +4,9 @@ import java.util.List;
 
 /**
  * @author Xperimental
- *
  */
 public interface INotifier {
-	
-	void reportUpdates(IRepository repository, List<IRevision> revisions);
+
+    void reportUpdates(IRepository repository, List<IRevision> revisions);
 
 }

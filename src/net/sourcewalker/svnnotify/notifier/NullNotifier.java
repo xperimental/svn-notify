@@ -8,13 +8,12 @@ import net.sourcewalker.svnnotify.data.interfaces.IRevision;
 
 /**
  * @author Xperimental
- *
  */
 public class NullNotifier implements INotifier {
 
-	@Override
-	public void reportUpdates(IRepository repository, List<IRevision> revisions) {
-		// Do nothing.
-	}
+    @Override
+    public void reportUpdates(IRepository repository, List<IRevision> revisions) {
+        // Do nothing.
+    }
 
 }
