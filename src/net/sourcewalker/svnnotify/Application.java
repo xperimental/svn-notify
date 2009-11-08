@@ -12,7 +12,7 @@ import net.sourcewalker.svnnotify.data.interfaces.IProvider;
 import net.sourcewalker.svnnotify.data.interfaces.IRepository;
 import net.sourcewalker.svnnotify.data.interfaces.IRevision;
 import net.sourcewalker.svnnotify.data.xmldb.XmlDatabase;
-import net.sourcewalker.svnnotify.notifier.NullNotifier;
+import net.sourcewalker.svnnotify.notifier.GrowlNotifier;
 
 /**
  * @author Xperimental
@@ -44,7 +44,7 @@ public class Application implements Runnable {
 		database = new XmlDatabase("database.xml");
 		objectFactory = (IObjectFactory) database;
 		provider = new ShellProvider();
-		notifier = new NullNotifier();
+		notifier = new GrowlNotifier();
 
 		parseArgs(args);
 	}
