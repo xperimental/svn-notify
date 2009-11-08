@@ -34,42 +34,70 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /**
+ * This class contains a flat-file database implementation using XML. It
+ * implements the {@link IDatabase} and {@link IObjectFactory} interfaces.
+ *
  * @author Xperimental
  */
 public class XmlDatabase implements IDatabase, IObjectFactory {
 
-    static final DateFormat DATE_FORMAT = new SimpleDateFormat(
+    /**
+     * Constant field contains the date-time format in the XML file.
+     */
+    private static final DateFormat DATE_FORMAT = new SimpleDateFormat(
             "yyyy-MM-dd'T'HH:mm:ss");
-    static final String DATABASE_FILE_NAME = "svn-notify.db.xml";
 
-    String fileName;
-    List<IRepository> repositories;
+    /**
+     * Constant field contains the default database file name.
+     */
+    private static final String DATABASE_FILE_NAME = "svn-notify.db.xml";
 
-    public XmlDatabase(String fileName) {
-        this.fileName = fileName;
+    /**
+     * Contains the file name used to save the file.
+     */
+    private String fileName;
+
+    /**
+     * Contains the list of repositories in the database.
+     */
+    private List<IRepository> repositories;
+
+    /**
+     * Create a new database instance using the filename provided. If the file
+     * exists, the database is loaded from the file.
+     *
+     * @param databaseFileName
+     *            File to load database from.
+     */
+    public XmlDatabase(final String databaseFileName) {
+        this.fileName = databaseFileName;
         this.repositories = new ArrayList<IRepository>();
 
         load();
     }
 
     @Override
-    public void addRepository(IRepository repository) {
+    public final void addRepository(final IRepository repository) {
         repositories.add(repository);
     }
 
     @Override
-    public List<IRepository> getRepositories() {
+    public final List<IRepository> getRepositories() {
         return repositories;
     }
 
     @Override
-    public void removeRepository(IRepository repository) {
+    public final void removeRepository(final IRepository repository) {
         repositories.remove(repository);
     }
 
-    protected void load() {
+    /**
+     * Loads the database from the file.
+     */
+    protected final void load() {
         try {
-            FileInputStream stream = new FileInputStream(DATABASE_FILE_NAME);
+            fileName = DATABASE_FILE_NAME;
+            FileInputStream stream = new FileInputStream(fileName);
             DocumentBuilderFactory docFactory = DocumentBuilderFactory
                     .newInstance();
             DocumentBuilder builder = docFactory.newDocumentBuilder();
@@ -86,7 +114,14 @@ public class XmlDatabase implements IDatabase, IObjectFactory {
         }
     }
 
-    private void loadFromDocument(Document document) {
+    /**
+     * Loads the contents from the XML document. Called by the {@link #load()}
+     * method.
+     *
+     * @param document
+     *            XML Document to load data from.
+     */
+    private void loadFromDocument(final Document document) {
         Node first = document.getFirstChild();
         if (first.getNodeName().equals("database")) {
             NodeList repoNodes = first.getChildNodes();
@@ -117,12 +152,21 @@ public class XmlDatabase implements IDatabase, IObjectFactory {
                         }
                     }
                 } catch (URISyntaxException e) {
+                    System.err.println("Error while parsing repository URL: "
+                            + e.getMessage());
                 }
             }
         }
     }
 
-    private List<IRevision> parseRevisions(Node revsNode) {
+    /**
+     * Load revision data from a &lt;revisions&gt; node.
+     *
+     * @param revsNode
+     *            XML node to load revisions from.
+     * @return List of {@link IRevision} objects loaded from the XML node.
+     */
+    private List<IRevision> parseRevisions(final Node revsNode) {
         List<IRevision> revisions = new ArrayList<IRevision>();
         NodeList revsChildren = revsNode.getChildNodes();
         for (int i = 0; i < revsChildren.getLength(); i++) {
@@ -137,13 +181,14 @@ public class XmlDatabase implements IDatabase, IObjectFactory {
                     Date timestamp = null;
                     for (int j = 0; j < revChildren.getLength(); j++) {
                         Node revChild = revChildren.item(j);
-                        if (revChild.getNodeName().equals("author"))
+                        if (revChild.getNodeName().equals("author")) {
                             author = revChild.getTextContent();
-                        else if (revChild.getNodeName().equals("message"))
+                        } else if (revChild.getNodeName().equals("message")) {
                             message = revChild.getTextContent();
-                        else if (revChild.getNodeName().equals("date"))
+                        } else if (revChild.getNodeName().equals("date")) {
                             timestamp = DATE_FORMAT.parse(revChild
                                     .getTextContent());
+                        }
                     }
                     if (author != null && message != null && timestamp != null) {
                         IRevision rev = createRevision(number, author,
@@ -152,31 +197,39 @@ public class XmlDatabase implements IDatabase, IObjectFactory {
                     }
                 }
             } catch (ParseException e) {
+                System.err.println("Error while parsing date of revision."
+                        + " Revision ignored!");
             }
         }
         return revisions;
     }
 
     @Override
-    public IRepository createRepository(String name, URI url) {
+    public final IRepository createRepository(final String name, final URI url) {
         return new XmlRepository(name, url);
     }
 
     @Override
-    public IRevision createRevision(int revision, String author,
-            Date timestamp, String message) {
+    public final IRevision createRevision(final int revision,
+            final String author, final Date timestamp, final String message) {
         return new XmlRevision(revision, author, timestamp, message);
     }
 
-    protected void dumpDB(Writer output) {
+    /**
+     * Dumps the current database content to a output stream.
+     *
+     * @param output
+     *            Writer to use for output.
+     */
+    protected final void dumpDB(final Writer output) {
         XMLOutputFactory outFactory = XMLOutputFactory.newInstance();
         try {
             XMLStreamWriter xmlWriter = outFactory
                     .createXMLStreamWriter(output);
             xmlWriter.writeStartDocument("UTF-8", "1.0");
-            if (repositories.size() == 0)
+            if (repositories.size() == 0) {
                 xmlWriter.writeEmptyElement("database");
-            else {
+            } else {
                 xmlWriter.writeStartElement("database");
                 for (IRepository repo : repositories) {
                     List<IRevision> revs = repo.getAllRevisions();
@@ -188,9 +241,9 @@ public class XmlDatabase implements IDatabase, IObjectFactory {
                     xmlWriter.writeStartElement("url");
                     xmlWriter.writeCharacters(repo.getURL().toString());
                     xmlWriter.writeEndElement();
-                    if (revs.size() == 0)
+                    if (revs.size() == 0) {
                         xmlWriter.writeEmptyElement("revisions");
-                    else {
+                    } else {
                         xmlWriter.writeStartElement("revisions");
                         for (IRevision rev : revs) {
                             xmlWriter.writeStartElement("revision");
@@ -220,14 +273,17 @@ public class XmlDatabase implements IDatabase, IObjectFactory {
         }
     }
 
-    public void save() {
+    @Override
+    public final void save() {
         try {
-            FileOutputStream stream = new FileOutputStream(DATABASE_FILE_NAME);
+            FileOutputStream stream = new FileOutputStream(fileName);
             OutputStreamWriter writer = new OutputStreamWriter(stream, Charset
                     .forName("UTF-8"));
             dumpDB(writer);
             writer.close();
         } catch (IOException e) {
+            System.err.println("Error while writing database: "
+                    + e.getMessage());
         }
     }
 
