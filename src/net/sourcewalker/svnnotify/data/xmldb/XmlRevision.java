@@ -5,42 +5,71 @@ import java.util.Date;
 import net.sourcewalker.svnnotify.data.interfaces.IRevision;
 
 /**
+ * Revision class to be used with the flat-file XML database implementation in
+ * {@link XmlDatabase}.
+ *
  * @author Xperimental
  */
 public class XmlRevision implements IRevision {
 
-    int revision;
-    String author;
-    String message;
-    Date timestamp;
+    /**
+     * Contains the revision number.
+     */
+    private int revision;
 
     /**
-     * @param revision
-     * @param author
-     * @param timestamp
-     * @param message
+     * Contains the revision author.
      */
-    public XmlRevision(int revision, String author, Date timestamp,
-            String message) {
-        this.revision = revision;
-        this.author = author;
-        this.timestamp = timestamp;
-        this.message = message;
+    private String author;
+
+    /**
+     * Contains the commit message of the revision.
+     */
+    private String message;
+
+    /**
+     * Contains the creation time of the revision.
+     */
+    private Date timestamp;
+
+    /**
+     * Create a new instance of the class with the attributes initialized to the
+     * specified values.
+     *
+     * @param revNumber
+     *            Revision number.
+     * @param revAuthor
+     *            Revision author.
+     * @param revTime
+     *            Creation time of revision.
+     * @param revMessage
+     *            Commit message of revision.
+     */
+    public XmlRevision(final int revNumber, final String revAuthor,
+            final Date revTime, final String revMessage) {
+        this.revision = revNumber;
+        this.author = revAuthor;
+        this.timestamp = revTime;
+        this.message = revMessage;
     }
 
-    public int getRevision() {
+    @Override
+    public final int getRevision() {
         return revision;
     }
 
-    public String getAuthor() {
+    @Override
+    public final String getAuthor() {
         return author;
     }
 
-    public String getMessage() {
+    @Override
+    public final String getMessage() {
         return message;
     }
 
-    public Date getTimestamp() {
+    @Override
+    public final Date getTimestamp() {
         return timestamp;
     }
 
