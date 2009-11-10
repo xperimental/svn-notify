@@ -15,31 +15,76 @@ import net.sourcewalker.svnnotify.data.xmldb.XmlDatabase;
 import net.sourcewalker.svnnotify.notifier.GrowlNotifier;
 
 /**
+ * The {@link Application} class contains the central code for the application.
+ * This class is {@link Runnable} and also contains a main method, which makes
+ * it runnable from the command-line (as intended), but also as a Thread in
+ * another application.
+ *
  * @author Xperimental
  */
 public class Application implements Runnable {
 
     /**
      * Entry point for application start.
-     * 
+     *
      * @param args
      *            Command-line parameters.
      */
-    public static void main(String[] args) {
+    public static void main(final String[] args) {
         Application app = new Application(args);
         app.run();
     }
 
-    IDatabase database;
-    IObjectFactory objectFactory;
-    IProvider provider;
-    INotifier notifier;
+    /**
+     * Contains the currently used database.
+     */
+    private IDatabase database;
 
-    ApplicationMode mode = ApplicationMode.NORMAL;
-    String repoName = null;
-    String repoUrl = null;
+    /**
+     * Contains the currently used {@link IObjectFactory} to create objects.
+     */
+    private IObjectFactory objectFactory;
 
-    public Application(String[] args) {
+    /**
+     * Contains the provider used to get information from repository servers.
+     */
+    private IProvider provider;
+
+    /**
+     * Contains the notifier used to display the repository information to the
+     * user.
+     */
+    private INotifier notifier;
+
+    /**
+     * Contains the mode the application is run as. The mode is determined by
+     * command-line parameters. If no parameter is specified by the user, the
+     * mode <code>NORMAL</code> is used.
+     */
+    private ApplicationMode mode = ApplicationMode.NORMAL;
+
+    /**
+     * Contains the repository name provided by the user. This is used to create
+     * or delete repositories. The value <code>null</code> indicates, that no
+     * name was provided.
+     */
+    private String repoName = null;
+
+    /**
+     * Contains the repository URL provided by the user. The URL is used to
+     * create new repository definitions. The value <code>null</code> indicates,
+     * that no URL was provided by the user.
+     */
+    private String repoUrl = null;
+
+    /**
+     * Creates a new application instance using the specified command-line
+     * parameters.
+     *
+     * @param args
+     *            Array of command-line parameters passed to the application.
+     */
+    public Application(final String[] args) {
         database = new XmlDatabase("database.xml");
         objectFactory = (IObjectFactory) database;
         provider = new ShellProvider();
@@ -49,9 +94,13 @@ public class Application implements Runnable {
     }
 
     /**
+     * Parses the supplied command-line parameters and sets the attributes of
+     * the class accordingly.
+     *
      * @param args
+     *            Command-line parameters to parse.
      */
-    private void parseArgs(String[] args) {
+    private void parseArgs(final String[] args) {
         for (int i = 0; i < args.length; i++) {
             String arg = args[i];
             if (arg.equalsIgnoreCase("--help")) {
@@ -82,7 +131,7 @@ public class Application implements Runnable {
     }
 
     @Override
-    public void run() {
+    public final void run() {
         switch (mode) {
         case NORMAL:
             normalRun();
@@ -94,22 +143,28 @@ public class Application implements Runnable {
             listRepos();
             break;
         case CREATE_REPO:
-            if (repoName != null && repoUrl != null)
+            if (repoName != null && repoUrl != null) {
                 createRepo();
-            else
+            } else {
                 showHelpScreen();
+            }
             break;
         case DELETE_REPO:
-            if (repoName != null)
+            if (repoName != null) {
                 deleteRepo();
-            else
+            } else {
                 showHelpScreen();
+            }
             break;
         default:
             System.out.println("Error: Application mode not defined!");
         }
     }
 
+    /**
+     * Deletes a repository from the database. The name of the repository to
+     * delete is read from the <code>repoName</code> attribute.
+     */
     private void deleteRepo() {
         List<IRepository> repositories = database.getRepositories();
         IRepository delete = null;
@@ -129,6 +184,10 @@ public class Application implements Runnable {
         }
     }
 
+    /**
+     * Creates a new repository in the database. Name and URL of the new
+     * repository are read from class attributes.
+     */
     private void createRepo() {
         URI url;
         try {
@@ -145,6 +204,9 @@ public class Application implements Runnable {
                 + url.toString() + ")");
     }
 
+    /**
+     * Lists the repositories currently present in the database.
+     */
     private void listRepos() {
         System.out.println("Configured repositories:");
         List<IRepository> repos = database.getRepositories();
@@ -155,6 +217,10 @@ public class Application implements Runnable {
         }
     }
 
+    /**
+     * Displays a help screen to the user, if the command-line parameters
+     * provided to the application are invalid.
+     */
     private void showHelpScreen() {
         System.out.println("usage:");
         System.out.println("\tsvn-notify");
@@ -170,11 +236,17 @@ public class Application implements Runnable {
                 + " will show this message.\n");
         System.out
                 .println("The parameter \"--list\" causes svn-notify to print"
-                        + " out all the repositories it is configured to monitor.\n");
+                        + " out all the repositories it is configured"
+                        + " to monitor.\n");
         System.out.println("The parameters \"--create\" and \"--delete\" are"
                 + " used to create and delete repositories for monitoring.");
     }
 
+    /**
+     * This method contains the logic for a normal run, which checks all
+     * repositories for new revisions and displays information about them to the
+     * user.
+     */
     private void normalRun() {
         System.out.println("Check for new revisions:");
         for (IRepository repo : database.getRepositories()) {
@@ -190,8 +262,9 @@ public class Application implements Runnable {
                     System.out.println("\t" + notifyRevisions.size()
                             + " revisions left for notify!");
                     notifier.reportUpdates(repo, notifyRevisions);
-                } else
+                } else {
                     System.out.println("\tNo revisions to notify user about!");
+                }
                 System.out.println();
             }
         }
