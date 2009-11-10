@@ -190,7 +190,8 @@ public class XmlDatabase implements IDatabase, IObjectFactory {
                                     .getTextContent());
                         }
                     }
-                    if (author != null && message != null && timestamp != null) {
+                    if (author != null && message != null
+                            && timestamp != null) {
                         IRevision rev = createRevision(number, author,
                                 timestamp, message);
                         revisions.add(rev);
@@ -205,7 +206,8 @@ public class XmlDatabase implements IDatabase, IObjectFactory {
     }
 
     @Override
-    public final IRepository createRepository(final String name, final URI url) {
+    public final IRepository createRepository(final String name,
+            final URI url) {
         return new XmlRepository(name, url);
     }
 

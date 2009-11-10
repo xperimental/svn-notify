@@ -25,31 +25,44 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /**
+ * Simple Subversion provider, which uses the command-line utility
+ * &quot;svn&quot; to get the information from the server log. Supports all URL
+ * schemes the command-line utility can read.
+ *
  * @author Xperimental
  */
 public class ShellProvider implements IProvider {
 
     @Override
-    public List<IRevision> getAllRevisions(IObjectFactory factory,
-            IRepository repository) {
+    public final List<IRevision> getAllRevisions(final IObjectFactory factory,
+            final IRepository repository) {
         return getRevisions(factory, repository.getURL().toString(), 0);
     }
 
     @Override
-    public List<IRevision> getNewRevisions(IObjectFactory factory,
-            IRepository repository) {
+    public final List<IRevision> getNewRevisions(final IObjectFactory factory,
+            final IRepository repository) {
         return getRevisions(factory, repository.getURL().toString(), repository
                 .getLastRevisionNumber());
     }
 
     /**
+     * Internal method which calls the command-line utility to get the revisions
+     * in XML format. The XML output is parsed by a DOM-parser to create the
+     * {@link IRevision} objects.
+     *
      * @param factory
-     * @param repository
+     *            {@link IObjectFactory} to use for creating the
+     *            {@link IRevision} objects from the XML tree.
+     * @param url
+     *            Server URL of repository.
      * @param startRevision
-     * @return
+     *            Last revision number in repository object. Only newer
+     *            revisions are retrieved from server.
+     * @return List of revisions since startRevision on server.
      */
-    private List<IRevision> getRevisions(IObjectFactory factory, String url,
-            int startRevision) {
+    private List<IRevision> getRevisions(final IObjectFactory factory,
+            final String url, final int startRevision) {
         List<String> params = new ArrayList<String>();
         params.add("svn");
         params.add("log");
@@ -81,11 +94,19 @@ public class ShellProvider implements IProvider {
     }
 
     /**
+     * Internal method to parse the DOM-tree returned from the command-line
+     * utility to create {@link IRevision} objects.
+     *
      * @param factory
+     *            {@link IObjectFactory} to use for creating new
+     *            {@link IRevision} objects.
      * @param document
-     * @return
+     *            DOM {@link Document} containing the XML output from the
+     *            utility.
+     * @return List of {@link IRevision} objects read from the XML output.s
      */
-    private List<IRevision> parseXml(IObjectFactory factory, Document document) {
+    private List<IRevision> parseXml(final IObjectFactory factory,
+            final Document document) {
         List<IRevision> result = new ArrayList<IRevision>();
 
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
@@ -121,7 +142,8 @@ public class ShellProvider implements IProvider {
                             message = child.getTextContent();
                         }
                     }
-                    if (author != null && message != null && timestamp != null) {
+                    if (author != null && message != null
+                            && timestamp != null) {
                         IRevision rev = factory.createRevision(revision,
                                 author, timestamp, message);
                         result.add(rev);
