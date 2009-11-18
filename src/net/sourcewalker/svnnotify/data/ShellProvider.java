@@ -8,6 +8,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -110,6 +111,7 @@ public class ShellProvider implements IProvider {
         List<IRevision> result = new ArrayList<IRevision>();
 
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+        dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
 
         Node first = document.getFirstChild();
         if (first.getNodeName().equals("log")) {
