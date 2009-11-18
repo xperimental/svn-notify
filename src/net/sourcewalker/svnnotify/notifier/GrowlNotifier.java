@@ -22,8 +22,9 @@ public class GrowlNotifier implements INotifier {
     public final void reportUpdates(final IRepository repository,
             final List<IRevision> revisions) {
         StringBuilder sb = new StringBuilder();
-        sb.append("Repository " + repository.getName() + " has "
-                + revisions.size() + " new commits:\n");
+        sb.append(revisions.size() + " new commit"
+                + (revisions.size() == 1 ? "" : "s"));
+        sb.append(" in repository " + repository.getName() + "\n");
         for (IRevision rev : revisions) {
             sb.append("  " + rev.getRevision() + " by " + rev.getAuthor()
                     + " (" + rev.getTimestamp().toString() + ")\n");
